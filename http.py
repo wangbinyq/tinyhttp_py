@@ -85,7 +85,7 @@ def headers(sock,path):
 	sock.send(buf)
 	buf = b'Server: jdbhttpd/0.1.0\r\n'
 	sock.send(buf)
-	buf = b'Content-Type: text/html\r\n'
+	buf = b'Content-Type: text/html; charset=utf-8\r\n'
 	sock.send(buf)
 	buf = b'\r\n'
 	sock.send(buf)
@@ -115,7 +115,7 @@ def serve_file(sock,path):
 		buf = get_line(sock)
 		numchars = len(buf)
 	try:
-		resourse = open(path)
+		resourse = open(path,encoding = 'utf-8')
 	except:
 		not_found(sock)
 	else:
