@@ -1,5 +1,5 @@
 import socket,threading,time
-from os import stat
+from os import stat,pipe
 
 
 def accept_request(sock):
@@ -9,6 +9,7 @@ def accept_request(sock):
 	numchars = len(buf)
 
 	method,url,proto = buf.split(' ')
+	method = method.upper()
 	if method != 'GET' and method != 'POST':
 		unimplemented(sock)
 		return 
@@ -58,8 +59,30 @@ def cannot_execute(sock):
 def error_die():
 	pass
 
-def execute_cgi():
-	pass
+def execute_cgi(sock,path,method,query_string):
+	if method == 'GET':
+		buf = ''
+		while buf != '\n':
+			buf = get_line(sock)
+	else:
+		content_length = -1
+		buf = get_line(sock)
+		while buf != '\n':
+			if 'Content-Type' in buf:
+				_,content_length = buf.split(':')
+				content_length = int(conten_length)
+		if conten_length == -1:
+			bad_request(sock)
+			return 
+	buf = b'HTTP/1.0 200 OK\r\n'
+	sock.send(buf)
+
+	cgi_output = os.pipe()
+	cgi_input = os.pipe()
+
+		
+
+
 
 def get_line(sock):
 	buf = []
@@ -109,11 +132,9 @@ def not_found(sock):
 	sock.send(buf)
 
 def serve_file(sock,path):
-	numchars = 1
 	buf = ''
-	while numchars >0 and buf != '\n':
+	while buf != '\n':
 		buf = get_line(sock)
-		numchars = len(buf)
 	try:
 		resourse = open(path,encoding = 'utf-8')
 	except:
